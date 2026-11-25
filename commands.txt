@@ -1,0 +1,58 @@
+bringup:
+source /opt/ros/jazzy/setup.bash
+source install/setup.sh
+ros2 launch franka_bringup franka.launch.py robot_ip:=172.16.0.2 robot_type:=fr3
+jazzy:
+ros2 launch franka_bringup custom.launch.py robot_ip:=172.16.0.2 robot_type:=fr3 namespace:=franka
+
+Moveit2:
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+ros2 launch franka_fr3_moveit_config moveit.launch.py robot_ip:=172.16.0.2 use_fake_hardware:=false
+
+Crisp_py setuppeja
+
+pythonpath: export PYTHONPATH=~/fr3_test/src/crisp_py:$PYTHONPATH
+
+bringup launchia ennen: export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+crisp_py launchit: 
+python3 ~/joonas/fr3_test/src/crisp_py/examples/test.py
+python3 ~/joonas/fr3_test/src/crisp_py/examples/teleop.py
+python3 ~/joonas/fr3_test/src/crisp_py/examples/so_teleop.py
+
+Memlcok jazzyssä: sudo prlimit --pid $$ --memlock=unlimited
+
+gripper cameran launchi: 
+ros2 launch realsense2_camera rs_launch.py serial_no:="'845112071321'"
+
+sudo chrt -f 99 bash -c "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; export CYCLONEDDS_URI=file:///home/jarvis-ur5/joonas/cyclone_config.xml; source /opt/ros/jazzy/setup.bash; source /home/jarvis-ur5/joonas/franka_ros2_ws/install/setup.bash; source /home/jarvis-ur5/joonas/fr3_test/install/setup.bash; ros2 launch franka_bringup custom.launch.py robot_ip:=172.16.0.2 robot_type:=fr3 namespace:=franka"
+
+Crisp_gym:
+pixi shell -e jazzy-lerobot
+python -c "import crisp_gym"
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+python3 scripts/record_lerobot_format_leader_follower.py --use-streamed-teleop --follower-namespace franka --repo-id test_dataset_xxx
+
+Upload huggingfaceen:
+cd ~/.cache/huggingface/lerobot
+source ~/hf_env/bin/activate
+hf upload Joonassoininen/testi <datasetin_nimi> --repo-type=dataset
+
+recci komennot: 
+ros2 topic pub --once /record_transition std_msgs/msg/String "{data: record}"
+ros2 topic pub --once /record_transition std_msgs/msg/String "{data: save}"
+ros2 topic pub --once /record_transition std_msgs/msg/String "{data: delete}"
+
+export CYCLONEDDS_URI=file:///home/jarvis-ur5/joonas/cyclone_config.xml
+
+
+
+
+
+
+
+
+
+
+
